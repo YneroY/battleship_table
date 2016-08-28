@@ -92,18 +92,15 @@ namespace Battleship_AWS
         }
 
         /// <summary>
-        /// General pictureBox mouse enter event
+        /// General pictureBox MouseEnter event
         /// </summary>
+        /// <param name="sender">Sender object</param>
+        /// <param name="e">Event data</param>
         private void pictureBox_MouseEnter(object sender, EventArgs e)
         {
-            if (current_selected_ship != null)
+            if (current_selected_ship != null) //Only need to run this routine if there is a ship selected
             {
                 var currentpb = sender as PictureBox;
-                if (currentpb != null)
-                {
-                    Console.WriteLine(currentpb.Name);
-                }
-
                 int pictureBoxDigit = Int32.Parse(currentpb.Name.Substring(currentpb.Name.Length - 1, 1)); //Get the number on the pictureBox using the last char in the string
 
                 int transition = pictureBoxDigit - lastClickedGrid;
@@ -151,14 +148,23 @@ namespace Battleship_AWS
         /// <summary>
         /// General pictureBox click event
         /// </summary>
-        private void pictureBox_Click(object sender, EventArgs e)
+        /// <param name="sender">Sender object</param>
+        /// <param name="e">Event data</param>
+        private void pictureBox_Click(object sender, MouseEventArgs e)
+        {
+            if(e.Button == System.Windows.Forms.MouseButtons.Left) //Left click, change ship position
+            {
+                leftClickEvent(sender);
+            }
+            else //Right click, rotate ship
+            {
+
+            }
+        }
+
+        void leftClickEvent(object sender)
         {
             var currentpb = sender as PictureBox;
-            if(currentpb != null)
-            {
-                Console.WriteLine(currentpb.Name);
-            }
-
             int pictureBoxDigit = Int32.Parse(currentpb.Name.Substring(currentpb.Name.Length - 1, 1)); //Get the number on the pictureBox using the last char in the string
 
             if (current_selected_ship == null)
@@ -175,7 +181,7 @@ namespace Battleship_AWS
                     Cursor.Position = screen_coordinates;
                 }
             }
-            else
+            else //Save the ship at its' current position in the grid
             {
                 //Remove the previous ship location in dictionary object
                 foreach (var item in shipLocation.Where(kvp => kvp.Value == current_selected_ship).ToList())
@@ -189,11 +195,71 @@ namespace Battleship_AWS
                     shipLocation.Add(destroyer_array[x], destroyer);
                 }
 
+                //Reset variables containing the selected ship
                 lastClickedGrid = 0;
                 current_selected_ship = null;
             }
         }
 
+        void rightClickEvent(object sender)
+        {
+            var currentpb = sender as PictureBox;
+            int pictureBoxDigit = Int32.Parse(currentpb.Name.Substring(currentpb.Name.Length - 1, 1)); //Get the number on the pictureBox using the last char in the string
+
+            if (current_selected_ship == null)
+            {
+                if (currentpb.BackColor == ship_Color) //The double-clicked pictureBox contains a ship
+                {
+                    shipLocation.TryGetValue(pictureBoxDigit, out current_selected_ship);
+                    rotateShip(current_selected_ship);
+                }
+            }
+        }
+
+        void rotateShip(string shipname)
+        {
+            if(shipname == destroyer)
+            {
+                if(destroyer_array[destroyer_array.Length - 1] == 501) //Horizontal -> vertical
+                {
+                    string pivotCoordinate = null;
+                    gridMapping.TryGetValue(destroyer_array[0], out pivotCoordinate);
+                    int currentColumnMax = ((GRID_ROW_COLUMN_MAXSIZE - 1) * GRID_ROW_COLUMN_MAXSIZE) + Int32.Parse(pivotCoordinate.Substring(1, 1));
+
+                    if(destroyer_array[0] + (destroyer_array.Length - 1 * GRID_ROW_COLUMN_MAXSIZE) <= currentColumnMax)
+                    {
+                        //Clear ship from grid
+                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        {
+                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            {
+                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = none_ship_Color;
+                            }
+                        }
+
+                        for (int x = 1; x < destroyer_array.Length - 1; x++)
+                        {
+                            destroyer_array[x] = destroyer_array[x - 1] + GRID_ROW_COLUMN_MAXSIZE;
+                        }
+
+                        //Load ship onto grid
+                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        {
+                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            {
+                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = ship_Color;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get the last point of the current row
+        /// </summary>
+        /// <param name="currentpoint">Current position in the grid</param>
+        /// <returns>Last point in the current row (3, 6, or 9)</returns>
         int getRowMax(int currentpoint)
         {
             if (currentpoint % GRID_ROW_COLUMN_MAXSIZE == 0)
@@ -206,6 +272,11 @@ namespace Battleship_AWS
             }
         }
 
+        /// <summary>
+        /// Get the difference between the last and the first point of a ship
+        /// </summary>
+        /// <param name="shipname">Current selected ship</param>
+        /// <returns>The difference in integer</returns>
         int getShipSize(string shipname)
         {
             if (shipname == destroyer)
@@ -216,6 +287,11 @@ namespace Battleship_AWS
                 return 0;
         }
 
+        /// <summary>
+        /// Get the first point of a ship (pivot point)
+        /// </summary>
+        /// <param name="shipname">Current selected ship</param>
+        /// <returns>First point of a ship</returns>
         int getShipFirstPoint(string shipname)
         {
             if (shipname == destroyer)
