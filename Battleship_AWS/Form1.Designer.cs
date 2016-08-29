@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.panel1 = new System.Windows.Forms.Panel();
             this.pictureBox9 = new System.Windows.Forms.PictureBox();
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -55,13 +54,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             this.SuspendLayout();
             // 
-            // panel1
-            // 
-            this.panel1.Location = new System.Drawing.Point(211, 135);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(220, 188);
-            this.panel1.TabIndex = 0;
-            // 
             // pictureBox9
             // 
             this.pictureBox9.BackColor = System.Drawing.Color.LightSkyBlue;
@@ -71,6 +63,7 @@
             this.pictureBox9.Size = new System.Drawing.Size(40, 40);
             this.pictureBox9.TabIndex = 14;
             this.pictureBox9.TabStop = false;
+            this.pictureBox9.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox_Click);
             this.pictureBox9.MouseEnter += new System.EventHandler(this.pictureBox_MouseEnter);
             // 
             // pictureBox3
@@ -106,6 +99,7 @@
             this.pictureBox8.Size = new System.Drawing.Size(40, 40);
             this.pictureBox8.TabIndex = 13;
             this.pictureBox8.TabStop = false;
+            this.pictureBox8.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox_Click);
             this.pictureBox8.MouseEnter += new System.EventHandler(this.pictureBox_MouseEnter);
             // 
             // pictureBox1
@@ -129,6 +123,7 @@
             this.pictureBox7.Size = new System.Drawing.Size(40, 40);
             this.pictureBox7.TabIndex = 12;
             this.pictureBox7.TabStop = false;
+            this.pictureBox7.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox_Click);
             this.pictureBox7.MouseEnter += new System.EventHandler(this.pictureBox_MouseEnter);
             // 
             // pictureBox4
@@ -140,6 +135,7 @@
             this.pictureBox4.Size = new System.Drawing.Size(40, 40);
             this.pictureBox4.TabIndex = 9;
             this.pictureBox4.TabStop = false;
+            this.pictureBox4.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox_Click);
             this.pictureBox4.MouseEnter += new System.EventHandler(this.pictureBox_MouseEnter);
             // 
             // pictureBox6
@@ -151,6 +147,7 @@
             this.pictureBox6.Size = new System.Drawing.Size(40, 40);
             this.pictureBox6.TabIndex = 11;
             this.pictureBox6.TabStop = false;
+            this.pictureBox6.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox_Click);
             this.pictureBox6.MouseEnter += new System.EventHandler(this.pictureBox_MouseEnter);
             // 
             // pictureBox5
@@ -162,6 +159,7 @@
             this.pictureBox5.Size = new System.Drawing.Size(40, 40);
             this.pictureBox5.TabIndex = 10;
             this.pictureBox5.TabStop = false;
+            this.pictureBox5.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictureBox_Click);
             this.pictureBox5.MouseEnter += new System.EventHandler(this.pictureBox_MouseEnter);
             // 
             // label6
@@ -224,7 +222,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(649, 502);
             this.Controls.Add(this.pictureBox9);
-            this.Controls.Add(this.panel1);
             this.Controls.Add(this.pictureBox3);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.pictureBox2);
@@ -256,7 +253,6 @@
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox pictureBox9;
         private System.Windows.Forms.PictureBox pictureBox8;
         private System.Windows.Forms.PictureBox pictureBox7;

@@ -20,7 +20,9 @@ namespace Battleship_AWS
 
         Control[,] seaGrid = new Control[3, 3];
 
-        //500 = vertical, 501 = horizontal
+        /// <summary>
+        /// Destroyer ship array. Last index represents ship's orientation. 500: vertical, 501: horizontal.
+        /// </summary>
         int[] destroyer_array = new int[3] { 1, 2, 501};
 
         Dictionary<int, string> gridMapping = new Dictionary<int, string>();
@@ -50,7 +52,9 @@ namespace Battleship_AWS
             }
         }
 
-        //Map individual pictureBox with their corresponding coordinates in a grid
+        /// <summary>
+        /// Map individual pictureBox with their corresponding coordinates in a grid
+        /// </summary>
         void mapGrid()
         {
             int row_seaGrid = 0;
@@ -75,7 +79,9 @@ namespace Battleship_AWS
             }
         }
 
-        //Populate the grid with the corresponding pictureBox
+        /// <summary>
+        /// Populate the grid with the corresponding pictureBox
+        /// </summary>
         void placePictureBoxGrid()
         {
             int pictureBoxNumbering = 1;
@@ -87,7 +93,6 @@ namespace Battleship_AWS
                     seaGrid[x, y] = this.Controls.Find("pictureBox" + pictureBoxNumbering.ToString(), true)[0];
                     pictureBoxNumbering += 1;
                 }
-
             }
         }
 
@@ -102,13 +107,11 @@ namespace Battleship_AWS
             {
                 var currentpb = sender as PictureBox;
                 int pictureBoxDigit = Int32.Parse(currentpb.Name.Substring(currentpb.Name.Length - 1, 1)); //Get the number on the pictureBox using the last char in the string
-
-                int transition = pictureBoxDigit - lastClickedGrid;
                 lastClickedGrid = pictureBoxDigit;
 
-                if (destroyer_array[destroyer_array.Length - 1] == 501) //Horizontal
+                if (current_selected_ship == destroyer)
                 {
-                    if (lastClickedGrid + getShipSize(current_selected_ship) <= getRowMax(lastClickedGrid))
+                    if (destroyer_array[destroyer_array.Length - 1] == 501 && lastClickedGrid + getShipSize(current_selected_ship) <= getRowMax(lastClickedGrid))
                     {
                         //Clear ship from grid
                         for (int x = 0; x < destroyer_array.Length - 1; x++)
@@ -139,37 +142,72 @@ namespace Battleship_AWS
                                 seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = ship_Color;
                             }
                         }
+                    }
+                    else if (destroyer_array[destroyer_array.Length - 1] == 501 && lastClickedGrid + getShipSize(current_selected_ship) <= getRowMax(lastClickedGrid))
+                    {
+                        //Clear ship from grid
+                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        {
+                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            {
+                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = none_ship_Color;
+                            }
+                        }
 
+                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        {
+                            if (x == 0)
+                            {
+                                destroyer_array[x] = lastClickedGrid;
+                            }
+                            else
+                            {
+                                destroyer_array[x] = destroyer_array[x - 1] + 1;
+                            }
+                        }
+
+                        //Load ship onto grid
+                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        {
+                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            {
+                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = ship_Color;
+                            }
+                        }
                     }
                 }
             }
         }
 
         /// <summary>
-        /// General pictureBox click event
+        /// General pictureBox click event (rotate, or change ship's location)
         /// </summary>
         /// <param name="sender">Sender object</param>
-        /// <param name="e">Event data</param>
+        /// <param name="e">Mouse event data</param>
         private void pictureBox_Click(object sender, MouseEventArgs e)
         {
-            if(e.Button == System.Windows.Forms.MouseButtons.Left) //Left click, change ship position
+            if(e.Button == System.Windows.Forms.MouseButtons.Left) //Left click, change ship's position
             {
                 leftClickEvent(sender);
             }
             else //Right click, rotate ship
             {
-
+                rightClickEvent(sender);
             }
         }
 
+        /// <summary>
+        /// Move the ship in the grid, or place the ship at the current position
+        /// </summary>
+        /// <param name="sender">Sender object</param>
         void leftClickEvent(object sender)
         {
             var currentpb = sender as PictureBox;
             int pictureBoxDigit = Int32.Parse(currentpb.Name.Substring(currentpb.Name.Length - 1, 1)); //Get the number on the pictureBox using the last char in the string
 
-            if (current_selected_ship == null)
+            if (current_selected_ship == null) //Pick-up a ship
             {
-                if (currentpb.BackColor == ship_Color) //The pictureBox clicked contains a ship
+                if (currentpb.BackColor == ship_Color) //The selected pictureBox contains a ship
                 {
                     shipLocation.TryGetValue(pictureBoxDigit, out current_selected_ship);
                     int shipPivot = getShipFirstPoint(current_selected_ship);
@@ -181,26 +219,20 @@ namespace Battleship_AWS
                     Cursor.Position = screen_coordinates;
                 }
             }
-            else //Save the ship at its' current position in the grid
+            else //Drop a ship
             {
-                //Remove the previous ship location in dictionary object
-                foreach (var item in shipLocation.Where(kvp => kvp.Value == current_selected_ship).ToList())
-                {
-                    shipLocation.Remove(item.Key);
-                }
-
-                //Load ship onto grid
-                for (int x = 0; x < destroyer_array.Length - 1; x++)
-                {
-                    shipLocation.Add(destroyer_array[x], destroyer);
-                }
-
+                saveShipStaticPosition();
+                    
                 //Reset variables containing the selected ship
                 lastClickedGrid = 0;
                 current_selected_ship = null;
             }
         }
 
+        /// <summary>
+        /// Move the ship in the grid, or place the ship at the current position
+        /// </summary>
+        /// <param name="sender">Sender object</param>
         void rightClickEvent(object sender)
         {
             var currentpb = sender as PictureBox;
@@ -212,21 +244,26 @@ namespace Battleship_AWS
                 {
                     shipLocation.TryGetValue(pictureBoxDigit, out current_selected_ship);
                     rotateShip(current_selected_ship);
+                    saveShipStaticPosition();
+
+                    //Reset variables containing the selected ship
+                    current_selected_ship = null;
                 }
             }
         }
 
+        /// <summary>
+        /// Rotate a ship by 90 degrees
+        /// </summary>
+        /// <param name="shipname">Current selected ship</param>
         void rotateShip(string shipname)
         {
-            if(shipname == destroyer)
+            if(shipname == destroyer) 
             {
-                if(destroyer_array[destroyer_array.Length - 1] == 501) //Horizontal -> vertical
+                if(destroyer_array[destroyer_array.Length - 1] == 501) //Check ship's current orientation
                 {
-                    string pivotCoordinate = null;
-                    gridMapping.TryGetValue(destroyer_array[0], out pivotCoordinate);
-                    int currentColumnMax = ((GRID_ROW_COLUMN_MAXSIZE - 1) * GRID_ROW_COLUMN_MAXSIZE) + Int32.Parse(pivotCoordinate.Substring(1, 1));
-
-                    if(destroyer_array[0] + (destroyer_array.Length - 1 * GRID_ROW_COLUMN_MAXSIZE) <= currentColumnMax)
+                    #region Horizontal -> vertical
+                    if (destroyer_array[0] + (destroyer_array.Length - 2 * GRID_ROW_COLUMN_MAXSIZE) <= getColumnMax(destroyer_array[0]))
                     {
                         //Clear ship from grid
                         for (int x = 0; x < destroyer_array.Length - 1; x++)
@@ -250,26 +287,91 @@ namespace Battleship_AWS
                                 seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = ship_Color;
                             }
                         }
+
+                        destroyer_array[destroyer_array.Length - 1] = 500; //Update the ship's orientation
                     }
+                    #endregion
+                }
+                else
+                {
+                    #region Vertical -> horizontal
+                    if (destroyer_array[0] + (destroyer_array.Length - 2) <= getRowMax(destroyer_array[0]))
+                    {
+                        //Clear ship from grid
+                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        {
+                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            {
+                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = none_ship_Color;
+                            }
+                        }
+
+                        for (int x = 1; x < destroyer_array.Length - 1; x++)
+                        {
+                            destroyer_array[x] = destroyer_array[x - 1] + 1;
+                        }
+
+                        //Load ship onto grid
+                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        {
+                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            {
+                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = ship_Color;
+                            }
+                        }
+
+                        destroyer_array[destroyer_array.Length - 1] = 501; //Update the ship's orientation
+                    }
+                    #endregion
                 }
             }
         }
 
         /// <summary>
-        /// Get the last point of the current row
+        /// Save the ship's current position
+        /// </summary>
+        void saveShipStaticPosition()
+        {
+            //Remove the ship's previous location from the Dictionary object
+            foreach (var item in shipLocation.Where(kvp => kvp.Value == current_selected_ship).ToList())
+            {
+                shipLocation.Remove(item.Key);
+            }
+
+            //Load the ship's current location into the Dictionary object
+            if (current_selected_ship == destroyer) //Destroyer
+            {
+                for (int x = 0; x < destroyer_array.Length - 1; x++)
+                {
+                    shipLocation.Add(destroyer_array[x], destroyer);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get the last point of a specific row
         /// </summary>
         /// <param name="currentpoint">Current position in the grid</param>
         /// <returns>Last point in the current row (3, 6, or 9)</returns>
         int getRowMax(int currentpoint)
         {
-            if (currentpoint % GRID_ROW_COLUMN_MAXSIZE == 0)
-            {
-                return (currentpoint / GRID_ROW_COLUMN_MAXSIZE) * GRID_ROW_COLUMN_MAXSIZE;
-            }
-            else
-            {
-                return ((currentpoint / GRID_ROW_COLUMN_MAXSIZE) + 1) * GRID_ROW_COLUMN_MAXSIZE;
-            }
+            string gridCoordinate = null;
+            gridMapping.TryGetValue(currentpoint, out gridCoordinate);
+
+            int x = (Int32.Parse(gridCoordinate.Substring(0, 1)) + 1) * GRID_ROW_COLUMN_MAXSIZE;
+            return x;
+        }
+
+        /// <summary>
+        /// Get the last point of a specific column
+        /// </summary>
+        /// <param name="currentpoint">Current position in the grid</param>
+        /// <returns>Last point in the current row (7, 8, or 9)</returns>
+        int getColumnMax(int currentpoint)
+        {
+            string gridCoordinate = null;
+            gridMapping.TryGetValue(currentpoint, out gridCoordinate);
+            return ((GRID_ROW_COLUMN_MAXSIZE - 1) * GRID_ROW_COLUMN_MAXSIZE) + Int32.Parse(gridCoordinate.Substring(1, 1));
         }
 
         /// <summary>
