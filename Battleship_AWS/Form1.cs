@@ -143,7 +143,7 @@ namespace Battleship_AWS
                             }
                         }
                     }
-                    else if (destroyer_array[destroyer_array.Length - 1] == 501 && lastClickedGrid + getShipSize(current_selected_ship) <= getRowMax(lastClickedGrid))
+                    else if (destroyer_array[destroyer_array.Length - 1] == 500 && lastClickedGrid + (getShipSize(current_selected_ship) * GRID_ROW_COLUMN_MAXSIZE) <= getColumnMax(lastClickedGrid))
                     {
                         //Clear ship from grid
                         for (int x = 0; x < destroyer_array.Length - 1; x++)
@@ -162,7 +162,7 @@ namespace Battleship_AWS
                             }
                             else
                             {
-                                destroyer_array[x] = destroyer_array[x - 1] + 1;
+                                destroyer_array[x] = destroyer_array[x - 1] + 3;
                             }
                         }
 
@@ -371,7 +371,8 @@ namespace Battleship_AWS
         {
             string gridCoordinate = null;
             gridMapping.TryGetValue(currentpoint, out gridCoordinate);
-            return ((GRID_ROW_COLUMN_MAXSIZE - 1) * GRID_ROW_COLUMN_MAXSIZE) + Int32.Parse(gridCoordinate.Substring(1, 1));
+            int x = ((GRID_ROW_COLUMN_MAXSIZE - 1) * GRID_ROW_COLUMN_MAXSIZE) + (Int32.Parse(gridCoordinate.Substring(1, 1)) + 1);
+            return x;
         }
 
         /// <summary>
