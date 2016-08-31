@@ -129,8 +129,9 @@ namespace Battleship_AWS
                 int pictureBoxDigit = Int32.Parse(currentpb.Name.Substring(currentpb.Name.Length - 1, 1)); //Get the number on the pictureBox using the last char in the string
                 lastClickedGrid = pictureBoxDigit;
 
-                if (current_selected_ship == destroyer)
+                if (current_selected_ship == destroyer) //Destroyer
                 {
+                    #region Destroyer routine processing
                     if (destroyer_array[destroyer_array.Length - 1] == 501 && lastClickedGrid + getShipSize(current_selected_ship) <= getRowMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, destroyer_array[destroyer_array.Length -1]))
                     {
                         //Clear ship from grid
@@ -163,7 +164,7 @@ namespace Battleship_AWS
                             }
                         }
                     }
-                    else if (destroyer_array[destroyer_array.Length - 1] == 500 && lastClickedGrid + (getShipSize(current_selected_ship) * GRID_ROW_COLUMN_MAXSIZE) <= getColumnMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, spy_array[spy_array.Length -1]))
+                    else if (destroyer_array[destroyer_array.Length - 1] == 500 && lastClickedGrid + (getShipSize(current_selected_ship) * GRID_ROW_COLUMN_MAXSIZE) <= getColumnMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, destroyer_array[destroyer_array.Length - 1]))
                     {
                         //Clear ship from grid
                         for (int x = 0; x < destroyer_array.Length - 1; x++)
@@ -195,73 +196,76 @@ namespace Battleship_AWS
                             }
                         }
                     }
+                    #endregion
                 }
-                else if (current_selected_ship == spy)
+                else if (current_selected_ship == spy) //Spy
                 {
-                    if (spy_array[destroyer_array.Length - 1] == 501 && lastClickedGrid + getShipSize(current_selected_ship) <= getRowMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, destroyer_array[destroyer_array.Length - 1]))
+                    #region Spy routine processing
+                    if (spy_array[spy_array.Length - 1] == 501 && lastClickedGrid + getShipSize(current_selected_ship) <= getRowMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, spy_array[spy_array.Length - 1]))
                     {
                         //Clear ship from grid
-                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        for (int x = 0; x < spy_array.Length - 1; x++)
                         {
-                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            if (gridMapping.TryGetValue(spy_array[x], out gridMapping_value))
                             {
                                 seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = none_ship_Color;
                             }
                         }
 
-                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        for (int x = 0; x < spy_array.Length - 1; x++)
                         {
                             if (x == 0)
                             {
-                                destroyer_array[x] = lastClickedGrid;
+                                spy_array[x] = lastClickedGrid;
                             }
                             else
                             {
-                                destroyer_array[x] = destroyer_array[x - 1] + 1;
+                                spy_array[x] = spy_array[x - 1] + 1;
                             }
                         }
 
                         //Load ship onto grid
-                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        for (int x = 0; x < spy_array.Length - 1; x++)
                         {
-                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            if (gridMapping.TryGetValue(spy_array[x], out gridMapping_value))
                             {
-                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = destroyer_Color;
+                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = spy_Color;
                             }
                         }
                     }
-                    else if (destroyer_array[destroyer_array.Length - 1] == 500 && lastClickedGrid + (getShipSize(current_selected_ship) * GRID_ROW_COLUMN_MAXSIZE) <= getColumnMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, spy_array[spy_array.Length - 1]))
+                    else if (spy_array[spy_array.Length - 1] == 500 && lastClickedGrid + (getShipSize(current_selected_ship) * GRID_ROW_COLUMN_MAXSIZE) <= getColumnMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, spy_array[spy_array.Length - 1]))
                     {
                         //Clear ship from grid
-                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        for (int x = 0; x < spy_array.Length - 1; x++)
                         {
-                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            if (gridMapping.TryGetValue(spy_array[x], out gridMapping_value))
                             {
                                 seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = none_ship_Color;
                             }
                         }
 
-                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        for (int x = 0; x < spy_array.Length - 1; x++)
                         {
                             if (x == 0)
                             {
-                                destroyer_array[x] = lastClickedGrid;
+                                spy_array[x] = lastClickedGrid;
                             }
                             else
                             {
-                                destroyer_array[x] = destroyer_array[x - 1] + GRID_ROW_COLUMN_MAXSIZE;
+                                spy_array[x] = spy_array[x - 1] + GRID_ROW_COLUMN_MAXSIZE;
                             }
                         }
 
                         //Load ship onto grid
-                        for (int x = 0; x < destroyer_array.Length - 1; x++)
+                        for (int x = 0; x < spy_array.Length - 1; x++)
                         {
-                            if (gridMapping.TryGetValue(destroyer_array[x], out gridMapping_value))
+                            if (gridMapping.TryGetValue(spy_array[x], out gridMapping_value))
                             {
-                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = destroyer_Color;
+                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = spy_Color;
                             }
                         }
                     }
+                    #endregion
                 }
             }
         }
@@ -294,7 +298,7 @@ namespace Battleship_AWS
 
             if (current_selected_ship == null) //Pick-up a ship
             {
-                if (currentpb.BackColor == destroyer_Color) //The selected pictureBox contains a ship
+                if (currentpb.BackColor != none_ship_Color) //The selected pictureBox contains a ship
                 {
                     shipLocation.TryGetValue(pictureBoxDigit, out current_selected_ship);
                     int shipPivot = getShipFirstPoint(current_selected_ship);
@@ -439,7 +443,14 @@ namespace Battleship_AWS
             {
                 for (int x = 0; x < destroyer_array.Length - 1; x++)
                 {
-                    shipLocation.Add(destroyer_array[x], destroyer);
+                    shipLocation.Add(destroyer_array[x], current_selected_ship);
+                }
+            }
+            else if (current_selected_ship == spy)
+            {
+                for (int x = 0; x < spy_array.Length - 1; x++)
+                {
+                    shipLocation.Add(spy_array[x], current_selected_ship);
                 }
             }
         }
@@ -537,6 +548,10 @@ namespace Battleship_AWS
             {
                 return destroyer_array.Length - 2;
             }
+            else if (shipname == spy)
+            {
+                return spy_array.Length - 1;
+            }
             else
                 return 0;
         }
@@ -552,20 +567,12 @@ namespace Battleship_AWS
             {
                 return destroyer_array[0];
             }
+            else if (shipname == spy)
+            {
+                return spy_array[0];
+            }
             else
                 return 0;
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            //Remove the ship's previous location from the Dictionary object
-            //foreach (var item in shipLocation.Where(kvp => kvp.Key == 7).ToList())
-            //{
-            //    Console.WriteLine(item.Value.ToString());
-            //}
-
-            var item = shipLocation.Where(kvp => kvp.Key == 3).ToDictionary(kvp => kvp.Key, kvp=> kvp.Value);
-            Console.WriteLine(item.Count.ToString());
         }
     }
 }
