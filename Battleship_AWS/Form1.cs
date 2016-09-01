@@ -12,7 +12,13 @@ namespace Battleship_AWS
 {
     public partial class Form1 : Form
     {
+        /// <summary>
+        /// Total number of blocks on the grid
+        /// </summary>
         const int MAX_GRID_SIZE = 9;
+        /// <summary>
+        /// //Total number of columns/rows
+        /// </summary>
         const int GRID_ROW_COLUMN_MAXSIZE = 3;
 
         //Ship name
@@ -33,8 +39,15 @@ namespace Battleship_AWS
         /// </summary>
         int[] spy_array = new int[2] { 3, 501 };
 
+        /// <summary>
+        /// Each block's position in the 2D-array
+        /// </summary>
         Dictionary<int, string> gridMapping = new Dictionary<int, string>();
+        /// <summary>
+        /// Store the location of both ships
+        /// </summary>
         Dictionary<int, string> shipLocation = new Dictionary<int, string>();
+
         string gridMapping_value = null;
         string current_selected_ship = null;
         int lastClickedGrid = 0;
@@ -198,10 +211,14 @@ namespace Battleship_AWS
                     }
                     #endregion
                 }
-                else if (current_selected_ship == spy) //Spy
+                else if (current_selected_ship == spy)
                 {
+                    //The spy ship occupies only a single block. Hence, we only
+                    //need to check whether the current block entered already
+                    //consist of a ship or not
+
                     #region Spy routine processing
-                    if (spy_array[spy_array.Length - 1] == 501 && lastClickedGrid + getShipSize(current_selected_ship) <= getRowMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, spy_array[spy_array.Length - 1]))
+                    if (!overlappingCheck(current_selected_ship, lastClickedGrid, spy_array[spy_array.Length - 1]))
                     {
                         //Clear ship from grid
                         for (int x = 0; x < spy_array.Length - 1; x++)
@@ -221,38 +238,6 @@ namespace Battleship_AWS
                             else
                             {
                                 spy_array[x] = spy_array[x - 1] + 1;
-                            }
-                        }
-
-                        //Load ship onto grid
-                        for (int x = 0; x < spy_array.Length - 1; x++)
-                        {
-                            if (gridMapping.TryGetValue(spy_array[x], out gridMapping_value))
-                            {
-                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = spy_Color;
-                            }
-                        }
-                    }
-                    else if (spy_array[spy_array.Length - 1] == 500 && lastClickedGrid + (getShipSize(current_selected_ship) * GRID_ROW_COLUMN_MAXSIZE) <= getColumnMax(lastClickedGrid) && !overlappingCheck(current_selected_ship, lastClickedGrid, spy_array[spy_array.Length - 1]))
-                    {
-                        //Clear ship from grid
-                        for (int x = 0; x < spy_array.Length - 1; x++)
-                        {
-                            if (gridMapping.TryGetValue(spy_array[x], out gridMapping_value))
-                            {
-                                seaGrid[Int32.Parse(gridMapping_value.Substring(0, 1)), Int32.Parse(gridMapping_value.Substring(1, 1))].BackColor = none_ship_Color;
-                            }
-                        }
-
-                        for (int x = 0; x < spy_array.Length - 1; x++)
-                        {
-                            if (x == 0)
-                            {
-                                spy_array[x] = lastClickedGrid;
-                            }
-                            else
-                            {
-                                spy_array[x] = spy_array[x - 1] + GRID_ROW_COLUMN_MAXSIZE;
                             }
                         }
 
@@ -296,7 +281,7 @@ namespace Battleship_AWS
             var currentpb = sender as PictureBox;
             int pictureBoxDigit = Int32.Parse(currentpb.Name.Substring(currentpb.Name.Length - 1, 1)); //Get the number on the pictureBox using the last char in the string
 
-            if (current_selected_ship == null) //Pick-up a ship
+            if (current_selected_ship == null) //Pickup a ship
             {
                 if (currentpb.BackColor != none_ship_Color) //The selected pictureBox contains a ship
                 {
@@ -446,7 +431,7 @@ namespace Battleship_AWS
                     shipLocation.Add(destroyer_array[x], current_selected_ship);
                 }
             }
-            else if (current_selected_ship == spy)
+            else if (current_selected_ship == spy) //Spy
             {
                 for (int x = 0; x < spy_array.Length - 1; x++)
                 {
@@ -550,7 +535,7 @@ namespace Battleship_AWS
             }
             else if (shipname == spy)
             {
-                return spy_array.Length - 1;
+                return spy_array.Length - 2;
             }
             else
                 return 0;
